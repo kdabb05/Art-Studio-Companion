@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Studio Companion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Left Sidebar - Supplies & Projects -->
+        <aside class="sidebar left-sidebar">
+            <div class="sidebar-header">
+                <h2>Studio Status</h2>
+            </div>
+
+            <!-- Supply Status Panel -->
+            <div class="panel supply-panel">
+                <div class="panel-header">
+                    <h3>Supplies</h3>
+                    <button class="btn-icon" onclick="refreshSupplies()" title="Refresh">
+                        <span class="icon">&#8635;</span>
+                    </button>
+                </div>
+                <div class="supply-summary">
+                    <div class="status-item status-green">
+                        <span class="status-dot"></span>
+                        <span class="status-label">Plenty</span>
+                        <span class="status-count" id="supply-plenty">0</span>
+                    </div>
+                    <div class="status-item status-yellow">
+                        <span class="status-dot"></span>
+                        <span class="status-label">Low</span>
+                        <span class="status-count" id="supply-low">0</span>
+                    </div>
+                    <div class="status-item status-red">
+                        <span class="status-dot"></span>
+                        <span class="status-label">Empty</span>
+                        <span class="status-count" id="supply-empty">0</span>
+                    </div>
+                </div>
+                <div id="low-stock-list" class="item-list"></div>
+            </div>
+
+            <!-- Projects Panel -->
+            <div class="panel projects-panel">
+                <div class="panel-header">
+                    <h3>Projects</h3>
+                    <button class="btn-icon" onclick="refreshProjects()" title="Refresh">
+                        <span class="icon">&#8635;</span>
+                    </button>
+                </div>
+                <div id="projects-list" class="item-list"></div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="main-content">
+            <header class="app-header">
+                <h1>Art Studio Companion</h1>
+                <p class="subtitle">Your AI-powered art studio manager</p>
+            </header>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="quick-btn" onclick="quickAction('scan')">
+                    <span class="quick-icon">&#128247;</span>
+                    <span>Scan Supplies</span>
+                </button>
+                <button class="quick-btn" onclick="quickAction('new-project')">
+                    <span class="quick-icon">&#10133;</span>
+                    <span>New Project</span>
+                </button>
+                <button class="quick-btn" onclick="quickAction('low-stock')">
+                    <span class="quick-icon">&#128722;</span>
+                    <span>Show Low Stock</span>
+                </button>
+                <button class="quick-btn" onclick="quickAction('inspiration')">
+                    <span class="quick-icon">&#10024;</span>
+                    <span>Get Inspiration</span>
+                </button>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="chat-container" id="chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message assistant">
+                        <div class="message-content">
+                            <p>Hello! I'm your Art Studio Companion. I can help you:</p>
+                            <ul>
+                                <li>Plan art projects based on your available supplies</li>
+                                <li>Track your inventory and alert you when supplies are low</li>
+                                <li>Find inspiration matching your aesthetic preferences</li>
+                                <li>Manage your portfolio of artwork</li>
+                            </ul>
+                            <p>What would you like to work on today?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input-container">
+                <form id="chat-form" onsubmit="sendMessage(event)">
+                    <div class="input-wrapper">
+                        <textarea
+                            id="chat-input"
+                            placeholder="Describe your project idea, ask about supplies, or get inspiration..."
+                            rows="1"
+                            onkeydown="handleKeyDown(event)"
+                        ></textarea>
+                        <button type="submit" class="send-btn" id="send-btn">
+                            <span>Send</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- Right Sidebar - Portfolio -->
+        <aside class="sidebar right-sidebar">
+            <div class="sidebar-header">
+                <h2>Portfolio</h2>
+            </div>
+
+            <!-- Portfolio Stats -->
+            <div class="panel portfolio-stats">
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="portfolio-completed">0</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="portfolio-wip">0</span>
+                        <span class="stat-label">In Progress</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="portfolio-sketches">0</span>
+                        <span class="stat-label">Sketches</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Gallery -->
+            <div class="panel portfolio-gallery">
+                <div class="panel-header">
+                    <h3>Recent Work</h3>
+                    <button class="btn-icon" onclick="refreshPortfolio()" title="Refresh">
+                        <span class="icon">&#8635;</span>
+                    </button>
+                </div>
+                <div id="portfolio-grid" class="gallery-grid">
+                    <div class="empty-state">
+                        <p>No artwork yet</p>
+                        <small>Start a project to add to your portfolio</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Artwork -->
+            <div class="panel upload-panel">
+                <label class="upload-btn">
+                    <input type="file" id="artwork-upload" accept="image/*" onchange="uploadArtwork(event)" hidden>
+                    <span class="upload-icon">&#128194;</span>
+                    <span>Add Artwork</span>
+                </label>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Scan Supplies Modal -->
+    <div id="scan-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Scan Supplies</h3>
+                <button class="close-btn" onclick="closeModal('scan-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Upload a photo of your art supplies and I'll help you add them to your inventory.</p>
+                <label class="upload-area">
+                    <input type="file" id="supply-photo" accept="image/*" onchange="scanSupplies(event)" hidden>
+                    <div class="upload-placeholder">
+                        <span class="upload-icon-large">&#128247;</span>
+                        <p>Click or drag to upload photo</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Project Modal -->
+    <div id="project-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>New Project</h3>
+                <button class="close-btn" onclick="closeModal('project-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Describe your project idea and I'll create a plan with your available supplies:</p>
+                <textarea id="project-idea" placeholder="e.g., watercolor sunflower landscape under $30" rows="3"></textarea>
+                <button class="btn-primary" onclick="submitProjectIdea()">Create Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
