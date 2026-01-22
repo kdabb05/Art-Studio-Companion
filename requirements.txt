@@ -1,0 +1,19 @@
+# Core Framework
+flask==3.0.0
+flask-cors==4.0.0
+python-dotenv==1.0.0
+
+# Letta SDK for stateful agent
+letta==0.6.6
+
+# Database
+sqlalchemy==2.0.23
+
+# Image processing for supply photo analysis
+pillow==10.1.0
+
+# HTTP requests for Pinterest API
+requests==2.31.0
+
+# Utilities
+werkzeug==3.0.1
